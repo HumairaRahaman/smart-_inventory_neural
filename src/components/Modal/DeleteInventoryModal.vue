@@ -6,9 +6,10 @@ import axios from "axios";
 
 export default defineComponent({
   props: {
-    show: Boolean,
+    show_delete: Boolean,
     id: String,
   },
+  //   props: ["foo"],
 
   setup(props) {
     let has_warranty = ref(false);
@@ -24,7 +25,8 @@ export default defineComponent({
     let warranty_expire_day = ref("");
     let warranty_expire_month = ref("");
     let warranty_expire_year = ref("");
-    console.log(has_warranty.value);
+    console.log(props.show_delete);
+    console.log(props.id);
 
     //api
     const state = reactive({
@@ -43,12 +45,7 @@ export default defineComponent({
         }
       );
       state.category = await response.json();
-      console.log(state.category);
     });
-    let data = reactive({
-      category: state.category,
-    });
-    console.log(state.category);
 
     let data_submit = {
       categoryName: category.value,
@@ -89,7 +86,6 @@ export default defineComponent({
     };
 
     return {
-      data,
       submit,
       data_submit,
       category,
@@ -113,7 +109,7 @@ export default defineComponent({
 
 <template>
   <Transition name="modal">
-    <div v-if="show" class="modal-mask">
+    <div v-if="show_delete" class="modal-mask">
       <div class="modal-container pl-[27px] pr-[40px]">
         <div class="relative bg-white rounded-lg dark:bg-gray-700">
           <button
@@ -141,7 +137,7 @@ export default defineComponent({
             <h3
               class="mb-[29px] text-xl text-center font-medium text-gray-900 dark:text-white"
             >
-              Add New Product
+              Delete
             </h3>
             <form class="space-y-6" @submit.prevent="submit">
               <div class="flex justify-between">
@@ -156,7 +152,7 @@ export default defineComponent({
                   <div class="w-[347px] h-[36px]">
                     <label class="">
                       <select
-                        v-model="state.category"
+                        v-model="category"
                         class="bg-gray-50 border border-gray-300 text-gray-900 w-[90%] text-sm focus:ring-blue-500 focus:border-blue-500 m-auto block md:w-[100%] sm:w-[98%] p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2 md:mb-0"
                       >
                         <option

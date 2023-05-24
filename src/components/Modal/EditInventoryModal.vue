@@ -7,8 +7,9 @@ import axios from "axios";
 export default defineComponent({
   props: {
     show: Boolean,
-    id: String,
+    id: Array,
   },
+  //   props: ["foo"],
 
   setup(props) {
     let has_warranty = ref(false);
@@ -24,7 +25,6 @@ export default defineComponent({
     let warranty_expire_day = ref("");
     let warranty_expire_month = ref("");
     let warranty_expire_year = ref("");
-    console.log(has_warranty.value);
 
     //api
     const state = reactive({
@@ -33,22 +33,36 @@ export default defineComponent({
     let Api_Key = "ABAd/fIIrrYfdoXQ1SQgYCkh18CDiOSMjPYsJ3tJdDQ=";
     let Api_Url = "http://182.163.101.173:49029";
 
-    onMounted(async () => {
-      const response = await fetch(
-        `${Api_Url}/product-crud/products/category-name-wise-product-names`,
-        {
-          headers: {
-            apiKey: Api_Key,
-          },
+    // onMounted(async () => {
+    //   const response = await fetch(
+    //     `${Api_Url}/product-crud/products/category-name-wise-product-names`,
+    //     {
+    //       headers: {
+    //         apiKey: Api_Key,
+    //       },
+    //     }
+    //   );
+    //   state.category = await response.json();
+    // });
+    axios
+      .get(`${Api_Url}/product-crud/products/${props.id}`, {
+        headers: { apiKey: Api_Key },
+      })
+
+      .then((res) => {
+        console.log(res);
+      })
+      .catch(function (error) {
+        if (error.response) {
+          console.log(error.response);
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.log(error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Error", error.message);
         }
-      );
-      state.category = await response.json();
-      console.log(state.category);
-    });
-    let data = reactive({
-      category: state.category,
-    });
-    console.log(state.category);
+      });
 
     let data_submit = {
       categoryName: category.value,
@@ -65,31 +79,11 @@ export default defineComponent({
     };
     const submit = (e) => {
       e.preventDefault();
+      console.log(id.value, props.show);
       console.log(data_submit);
-      axios
-        .post(`${Api_Url}/product-crud/products`, data_submit, {
-          headers: { apiKey: Api_Key },
-        })
-
-        .then((res) => {
-          console.log(res);
-          alert("submited");
-        })
-        .catch(function (error) {
-          if (error.response) {
-            console.log(error.response);
-          } else if (error.request) {
-            // The request was made but no response was received
-            console.log(error.request);
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log("Error", error.message);
-          }
-        });
     };
 
     return {
-      data,
       submit,
       data_submit,
       category,
@@ -141,7 +135,7 @@ export default defineComponent({
             <h3
               class="mb-[29px] text-xl text-center font-medium text-gray-900 dark:text-white"
             >
-              Add New Product
+              Edit This Product
             </h3>
             <form class="space-y-6" @submit.prevent="submit">
               <div class="flex justify-between">
@@ -152,20 +146,19 @@ export default defineComponent({
                     >Category <span class="text-red-600">*</span></label
                   >
                 </div>
+                <div>{{ id.id }}</div>
+                <div>{{ show }}</div>
                 <div class="justify-end w-[70%]">
                   <div class="w-[347px] h-[36px]">
                     <label class="">
                       <select
-                        v-model="state.category"
                         class="bg-gray-50 border border-gray-300 text-gray-900 w-[90%] text-sm focus:ring-blue-500 focus:border-blue-500 m-auto block md:w-[100%] sm:w-[98%] p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2 md:mb-0"
                       >
                         <option
                           selected
-                          v-for="(category_name, i) in state.category"
-                          :key="i"
                           class="py-[9px] px-[12px] w-44 bg-indigo-50 text-bold rounded-lg text-black divide-y divide-gray-100 dark:bg-gray-700"
                         >
-                          {{ category_name.name }}
+                          {{ id.categoryName }}
                         </option>
                       </select>
                     </label>
@@ -184,15 +177,12 @@ export default defineComponent({
                   <div class="w-[347px] h-[36px]">
                     <label class="">
                       <select
-                        v-model="product_name"
                         class="bg-gray-50 border border-gray-300 text-gray-900 w-[90%] text-sm focus:ring-blue-500 focus:border-blue-500 m-auto block md:w-[100%] sm:w-[98%] p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 mb-2 md:mb-0"
                       >
                         <option
-                          v-for="(product_name, i) in state.category"
-                          :key="i"
                           class="py-[9px] px-[12px] w-44 bg-indigo-50 text-bold rounded-lg text-black divide-y divide-gray-100 dark:bg-gray-700"
                         >
-                          {{ product_name.products[i].name }}
+                          {{ id.productName }}
                         </option>
                       </select>
                     </label>
@@ -214,9 +204,8 @@ export default defineComponent({
                     name="serial_number"
                     id="serial_number"
                     class="py-[9px] px-[12px] bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-[347px] h-[36px] p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                    placeholder="5CDFGDSERY"
-                    required
-                  />
+                    placeholder="required"
+                  />{{ id.serialNumber }}
                 </div>
               </div>
               <div class="flex justify-between">

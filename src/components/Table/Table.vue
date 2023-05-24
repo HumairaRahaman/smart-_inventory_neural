@@ -1,11 +1,14 @@
 <script>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
+import Modal from "../Modal/EditInventoryModal.vue";
+import Delete_Modal from "../Modal/DeleteInventoryModal.vue";
 
 export default {
   setup() {
     const state = reactive({
       test: null,
     });
+    let id = ref("");
     let Api_Key = "ABAd/fIIrrYfdoXQ1SQgYCkh18CDiOSMjPYsJ3tJdDQ=";
     let Api_Url = "http://182.163.101.173:49029";
 
@@ -16,14 +19,42 @@ export default {
         },
       });
       state.test = await response.json();
+      id.value = state.test.id;
       console.log(state.test);
     });
 
+    const modal = ref();
+    const showModal = ref(false);
+    const showModalDelete = ref(false);
+
+    const modal_view = (e) => {
+      console.log(e);
+      id.value = e;
+      showModal.value = true;
+      console.log(typeof id.value);
+    };
+
+    const delete_modal_view = () => {
+      console.log("object");
+      showModalDelete.value = true;
+      console.log(showModalDelete.value);
+    };
+
     return {
+      id,
+      modal,
+      modal_view,
+      delete_modal_view,
+      showModal,
+      showModalDelete,
       state,
       Api_Url,
       Api_Key,
     };
+  },
+  components: {
+    Modal,
+    Delete_Modal,
   },
 };
 </script>
@@ -108,7 +139,7 @@ export default {
             class="border border-x-0 text-[#333333] border-slate-200 font-normal text-[14px] leading-[136%] font-['Open_Sans]"
           >
             <img
-              :src="Api_Url + '/product-crud/' + data.productPhoto.v50x50Path"
+              :src="Api_Url + '/product-crud/' + data?.productPhoto?.originalPath"
               alt="img"
               class="mx-auto rounded-full w-[29px] h-[29px]"
             />
@@ -150,14 +181,40 @@ export default {
           >
             <div class="flex">
               <div class="mr-2">
-                <button class="">
+                <button class="" @click="modal_view(data)">
                   <img src="../../../public/Image/edit.png" class="" alt="edit" />
                 </button>
+                <Teleport to="body">
+                  <modal
+                    :show="showModal"
+                    @close="showModal = false"
+                    :id="id"
+                    ref="modal"
+                  >
+                    <template #header>
+                      <h3>custom header</h3>
+                    </template>
+                  </modal>
+                </Teleport>
               </div>
               <div class="">
-                <button>
+                <button @click="delete_modal_view">
                   <img src="../../../public/Image/delete.png" class="" alt="delete" />
                 </button>
+                <Teleport to="body">
+                  <modal>
+                    <template #header>
+                      <h3>custom header</h3>
+                    </template>
+                  </modal>
+                  <modal
+                    :show_delete="showModalDelete"
+                    @close="showModalDelete = false"
+                    :id="id"
+                    ref="delete-modal"
+                  >
+                  </modal>
+                </Teleport>
               </div>
             </div>
           </td>
